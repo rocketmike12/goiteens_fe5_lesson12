@@ -8,19 +8,32 @@ class App extends Component {
 	constructor() {
 		super();
 
-		this.state = { hidden: true };
+		this.state = { modalOpen: false, timeStart: Date.now(), time: 0 };
 	}
+
+	startTimer = () => {
+		this.timerId = setInterval(() => {
+			this.setState({ time: Date.now() - this.state.timeStart });
+		}, 10);
+	};
+
+	stopTimer = () => {
+		clearInterval(this.timerId);
+	};
 
 	openModal = () => {
 		this.setState({
-			hidden: false
+			modalOpen: true,
+			timeStart: Date.now() - this.state.time
 		});
 	};
 
-	closeModal = () => {
-		this.setState({
-			hidden: true
-		});
+	closeModal = (e) => {
+		if ((e.type === "click" && ((e.currentTarget.id === "backdrop" && e.target.id !== "closeBtn") || e.currentTarget.id === "closeBtn")) || e.type === "keydown") {
+			this.setState({
+				modalOpen: false
+			});
+		}
 	};
 
 	render() {
@@ -30,7 +43,8 @@ class App extends Component {
 					<button className={styles["open-button"]} onClick={this.openModal}>
 						open modal
 					</button>
-					<Modal hidden={this.state.hidden} onClose={this.closeModal} />
+					{this.state.modalOpen && <Modal onClose={this.closeModal} startTimer={this.startTimer} stopTimer={this.stopTimer} />}
+					<p className={styles["timer"]}>time looked: {(this.state.time / 1000).toFixed(3)}s</p>
 				</div>
 			</>
 		);
